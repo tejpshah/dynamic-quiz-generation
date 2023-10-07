@@ -1,5 +1,5 @@
 import openai 
-from promptTemplates import summarizerSystemPrompt, questionGeneratorSystemPrompt, questionCritiquerSystemPrompt
+from promptTemplates import summarizerSystemPrompt, questionGeneratorSystemPrompt, questionCritiquerSystemPrompt, convertToMongoDBSystemPrompt
 from config import OPENAI_API_KEY
 import os
 from PyPDF2 import PdfReader
@@ -86,6 +86,17 @@ def finalizedQuestions(system_prompt, context, critiques):
     )
     return response['choices'][0]['message']['content']
 
+# This function converts questions to MongoDB format
+def convertToMongoDB(system_prompt, context):
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"Convert the questions to MongoDB format:\n{context}"},
+        ]
+    )
+    return response['choices'][0]['message']['content']
+
 def text_to_pdf(text, pdf_filename="questions.pdf"):
     # Split the text into individual questions
     questions = re.split(r'\d+\.', text)[1:]  # Split by numbers followed by a dot
@@ -135,6 +146,9 @@ if __name__ == "__main__":
     finalized = finalizedQuestions(questionGeneratorSystemPrompt, summary, critiques)
     print("FINALIZED\n" + finalized + "\n")
 
+    mongoDB = convertToMongoDB(convertToMongoDBSystemPrompt, finalized)
+    print("MONGODB\n" + mongoDB + "\n")
+
     # Automatically create a new folder in "output" based on number
     new_folder_path = create_new_folder()
     mm_day = datetime.datetime.now().strftime("%m_%d")
@@ -150,6 +164,11 @@ if __name__ == "__main__":
     # Write the questions of the file path to an output file
     outputFile = open(f"{new_folder_path}/questions_{mm_day}.txt", "w")
     outputFile.write(finalized)
+    outputFile.close()
+
+    # Write the MongoDB of the file path to an output file BSON
+    outputFile = open(f"{new_folder_path}/mongoDB_{mm_day}.bson", "w")
+    outputFile.write(mongoDB)
     outputFile.close()
 
 

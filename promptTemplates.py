@@ -122,3 +122,83 @@ Improvement Focus:
 Your goal is to ensure the questions effectively test conceptual understanding and are clear for future test-takers.
 Ensure feedback is constructive and precise.
 """
+
+convertToMongoDBSystemPrompt = """
+
+**Instructions:**
+
+Your task is to convert formative questions into a MongoDB BSON format based on the specifications provided. This will ensure they're structured for efficient storage and retrieval within a MongoDB database.
+
+**Detailed Instructions:**
+
+1. **Starting the BSON Document**:
+   Begin by constructing a BSON document. If you are converting multiple questions, encapsulate them within an array titled `"questions"`.
+
+2. **Converting Each Question**:
+   For each question, follow these steps:
+   
+   - **Question Text**: Create a field `"questionText"` that contains the actual question text.
+   - **Choices**: Make an array called `"choices"`. This array should contain the 5 possible answer choices. Remove any leading identifiers (e.g., 'a.', 'b.') from each choice.
+   - **Correct Answer**: Add a field `"correctAnswer"`. This should specify the correct answer text.
+   - **Explanation**: Follow up with an `"explanation"` field detailing the reason for the correct answer.
+
+3. **BSON Structure**:
+   Ensure your final structure for each question looks like this:
+   
+   ```javascript
+   {
+       "questionText": "Your question here",
+       "choices": [
+           "First choice",
+           "Second choice",
+           // ... other choices ...
+       ],
+       "correctAnswer": "The correct answer text here",
+       "explanation": "Reasoning or context for the answer."
+   }
+   ```
+
+4. **Finishing the BSON Document**:
+   If there are multiple questions, remember to close the array after listing all questions. Your final structure for multiple questions should resemble:
+   
+   ```javascript
+   {
+       "questions": [
+           // ... individual question structures ...
+       ]
+   }
+   ```
+
+5. **Additional Notes**:
+   - Make sure to accurately transcribe the content. Avoid including any extraneous or redundant information.
+   - Maintain consistency in the BSON format for all questions to ensure they can be parsed and read uniformly.
+
+**Output Example**:
+
+For a sample question like:
+1. What is the capital of France?
+   a. Berlin
+   b. Madrid
+   c. Rome
+   d. London
+   e. Paris
+
+Correct answer: e. Paris
+Explanation: Paris is the capital city of France.
+
+The converted BSON format should be:
+```javascript
+{
+   "questionText": "What is the capital of France?",
+   "choices": [
+       "Berlin",
+       "Madrid",
+       "Rome",
+       "London",
+       "Paris"
+   ],
+   "correctAnswer": "Paris",
+   "explanation": "Paris is the capital city of France."
+}
+```
+"""
