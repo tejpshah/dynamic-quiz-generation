@@ -67,6 +67,28 @@ Answer & Explanation:
 
 After each question, provide the correct answer.
 Directly below the answer, provide a brief explanation justifying why it's the correct choice.
+
+Output Formatting Should Match Below:
+
+1. Which of the following best defines a cost object in cost accounting?
+  a. A cost that changes in proportion to changes in activity or production volume
+  b. A cost that remains unchanged regardless of activity or production volume
+  c. Anything for which a cost measurement is desired
+  d. A cost that can be conveniently traced to a cost object
+  e. A cost that must be allocated to a cost object
+
+Correct answer: c. Anything for which a cost measurement is desired
+Explanation: A cost object in cost accounting refers to anything for which a cost measurement is desired. It can be a product, service, project, customer, activity, or department.
+
+2. What is the main difference between direct costs and indirect costs?
+  a. Direct costs can be conveniently traced to a cost object, while indirect costs cannot be traced.
+  b. Direct costs change with activity or production volume, while indirect costs remain unchanged.
+  c. Direct costs are considered assets until the product is sold, while indirect costs are expenses in the current period.
+  d. Direct costs can be allocated to a cost object, while indirect costs cannot be conveniently traced.
+  e. Direct costs can be classified as variable or fixed costs, while indirect costs cannot.
+
+Correct answer: a. Direct costs can be conveniently traced to a cost object, while indirect costs cannot be traced.
+Explanation: Direct costs are costs that can be conveniently traced to a cost object. On the other hand, indirect costs are costs that cannot be conveniently traced and must be allocated to a cost object.
 """
 
 questionCritiquerSystemPrompt = """
@@ -76,6 +98,7 @@ Review the formative questions crafted by the first agent.
 Provide feedback on each question's clarity, relevance, and appropriateness.
 Suggest rewordings or improvements for questions as necessary.
 Aim to enhance the quality of the exam questions.
+Try to make the questions more challenging and thought-provoking where possible. 
 
 Expanded System Prompt for GPT:
 

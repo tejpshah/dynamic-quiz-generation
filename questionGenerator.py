@@ -3,6 +3,11 @@ from promptTemplates import summarizerSystemPrompt, questionGeneratorSystemPromp
 from config import OPENAI_API_KEY
 import os
 from PyPDF2 import PdfReader
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
+import re
+
 
 # Set up configurations 
 openai.api_key= OPENAI_API_KEY
@@ -80,6 +85,29 @@ def finalizedQuestions(system_prompt, context, critiques):
     )
     return response['choices'][0]['message']['content']
 
+def text_to_pdf(text, pdf_filename="questions.pdf"):
+    # Split the text into individual questions
+    questions = re.split(r'\d+\.', text)[1:]  # Split by numbers followed by a dot
+    
+    # Create a new PDF document
+    doc = SimpleDocTemplate(pdf_filename, pagesize=letter)
+    
+    # Define styles for the PDF
+    styles = getSampleStyleSheet()
+    
+    # Create an empty list to hold the PDF content
+    content = []
+    
+    for question in questions:
+        lines = question.strip().split('\n')
+        for line in lines:
+            content.append(Paragraph(line.strip(), styles['Normal']))
+            content.append(Spacer(1, 12))  # Add a space after each line for clarity
+        content.append(PageBreak())
+    
+    # Build the PDF document with the content
+    doc.build(content)
+
 if __name__ == "__main__":
 
     # Read and store the text from the input file
@@ -98,6 +126,9 @@ if __name__ == "__main__":
     finalized = finalizedQuestions(questionGeneratorSystemPrompt, summary, critiques)
     print("FINALIZED\n" + finalized + "\n")
 
+    # Save the questions to a PDF file
+    text_to_pdf(finalized, "output/questions.pdf")
+
     # Write the summary of the file path to an output file
     outputFile = open("output/summary.txt", "w")
     outputFile.write(summary)
@@ -107,4 +138,5 @@ if __name__ == "__main__":
     outputFile = open("output/questions.txt", "w")
     outputFile.write(finalized)
     outputFile.close()
+
 
