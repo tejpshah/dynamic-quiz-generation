@@ -7,6 +7,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
 import re
+import datetime
 
 
 # Set up configurations 
@@ -108,6 +109,14 @@ def text_to_pdf(text, pdf_filename="questions.pdf"):
     # Build the PDF document with the content
     doc.build(content)
 
+def create_new_folder():
+    output_dir = "output"
+    num_folders = len(os.listdir(output_dir))
+    new_folder_name = str(num_folders)
+    new_folder_path = os.path.join(output_dir, new_folder_name)
+    os.mkdir(new_folder_path)
+    return new_folder_path
+
 if __name__ == "__main__":
 
     # Read and store the text from the input file
@@ -126,16 +135,20 @@ if __name__ == "__main__":
     finalized = finalizedQuestions(questionGeneratorSystemPrompt, summary, critiques)
     print("FINALIZED\n" + finalized + "\n")
 
+    # Automatically create a new folder in "output" based on number
+    new_folder_path = create_new_folder()
+    mm_day = datetime.datetime.now().strftime("%m_%d")
+
     # Save the questions to a PDF file
-    text_to_pdf(finalized, "output/questions.pdf")
+    text_to_pdf(finalized, f"{new_folder_path}/questions_{mm_day}.pdf")
 
     # Write the summary of the file path to an output file
-    outputFile = open("output/summary.txt", "w")
+    outputFile = open(f"{new_folder_path}/summary_{mm_day}.txt", "w")
     outputFile.write(summary)
     outputFile.close()
 
     # Write the questions of the file path to an output file
-    outputFile = open("output/questions.txt", "w")
+    outputFile = open(f"{new_folder_path}/questions_{mm_day}.txt", "w")
     outputFile.write(finalized)
     outputFile.close()
 
