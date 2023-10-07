@@ -1,15 +1,42 @@
 import openai 
-from promptTemplates import summarizerSystemPrompt
+from promptTemplates import summarizerSystemPrompt, questionGeneratorSystemPrompt, questionCritiquerSystemPrompt
 from config import OPENAI_API_KEY
+import os
+from PyPDF2 import PdfReader
 
-# Set up OpenAI API key
-openai.api_key = OPENAI_API_KEY 
+# Set up configurations 
+openai.api_key= OPENAI_API_KEY
 
-# Read and store the text from the input file
-inputFile = open("data/sample.txt", "r")
-inputText = inputFile.read()
-inputFile.close()
+# This function extracts all the text from the files in the data directory
+def extract_all_text_in_data_directory(directory="data/"):
+    all_text = []
 
+    # List all the files in the directory
+    for file_name in os.listdir(directory):
+        file_path = os.path.join(directory, file_name)
+
+        # Check if the file is a PDF
+        if file_name.endswith('.pdf'):
+            try:
+                with open(file_path, 'rb') as pdf_file:
+                    pdf_reader = PdfReader(pdf_file)
+                    for page in pdf_reader.pages:
+                        all_text.append(page.extract_text())
+                    print(f"Successfully processed {file_name}")
+            except Exception as e:
+                print(f"Error processing {file_name}: {e}")
+
+        # Check if the file is a text file
+        elif file_name.endswith('.txt'):
+            try:
+                with open(file_path, 'r', encoding='utf-8') as text_file:
+                    all_text.append(text_file.read())
+            except Exception as e:
+                print(f"Error processing {file_name}: {e}")
+
+    return ''.join(all_text)
+
+# This function generates a summary from a given text
 def generateSummary(system_prompt, context):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-16k",
@@ -20,5 +47,64 @@ def generateSummary(system_prompt, context):
     )
     return response['choices'][0]['message']['content']
 
-print(generateSummary(summarizerSystemPrompt, inputText))
+# This function generates questions from a given text
+def generateQuestions(system_prompt, context):
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"Make questions on the following content:\n{context}"},
+        ]
+    )
+    return response['choices'][0]['message']['content']
+
+# This function critiques questions from a given text
+def critiqueQuestions(system_prompt, context):
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"Critique the set of questions generated:\n{context}"},
+        ]
+    )
+    return response['choices'][0]['message']['content']
+
+# This function finalizes questions from a given text
+def finalizedQuestions(system_prompt, context, critiques):
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"This is the content you're making questions on: \n{context}\n These are the critiques you've recieved: \n{critiques}. Your revised questions are:"},
+        ]
+    )
+    return response['choices'][0]['message']['content']
+
+if __name__ == "__main__":
+
+    # Read and store the text from the input file
+    inputText = extract_all_text_in_data_directory()
+
+    # Generate the summary and questions
+    summary = generateSummary(summarizerSystemPrompt, inputText)
+    print("SUMMARY\n" + summary + "\n")
+
+    questions = generateQuestions(questionGeneratorSystemPrompt, summary)
+    print("QUESTIONS\n" + questions + "\n")
+
+    critiques = critiqueQuestions(questionCritiquerSystemPrompt, questions)
+    print("CRITIQUES\n" + critiques + "\n")
+
+    finalized = finalizedQuestions(questionGeneratorSystemPrompt, summary, critiques)
+    print("FINALIZED\n" + finalized + "\n")
+
+    # Write the summary of the file path to an output file
+    outputFile = open("output/summary.txt", "w")
+    outputFile.write(summary)
+    outputFile.close()
+
+    # Write the questions of the file path to an output file
+    outputFile = open("output/questions.txt", "w")
+    outputFile.write(finalized)
+    outputFile.close()
 
