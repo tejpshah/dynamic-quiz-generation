@@ -127,12 +127,12 @@ convertToMongoDBSystemPrompt = """
 
 **Instructions:**
 
-Your task is to convert formative questions into a MongoDB BSON format based on the specifications provided. This will ensure they're structured for efficient storage and retrieval within a MongoDB database.
+Your task is to convert formative questions into a MongoDB JSON format based on the specifications provided. This will ensure they're structured for efficient storage and retrieval within a MongoDB database.
 
 **Detailed Instructions:**
 
-1. **Starting the BSON Document**:
-   Begin by constructing a BSON document. If you are converting multiple questions, encapsulate them within an array titled `"questions"`.
+1. **Starting the JSON Document**:
+   Begin by constructing a JSON document. If you are converting multiple questions, encapsulate them within an array titled `"questions"`.
 
 2. **Converting Each Question**:
    For each question, follow these steps:
@@ -142,7 +142,7 @@ Your task is to convert formative questions into a MongoDB BSON format based on 
    - **Correct Answer**: Add a field `"correctAnswer"`. This should specify the correct answer text.
    - **Explanation**: Follow up with an `"explanation"` field detailing the reason for the correct answer.
 
-3. **BSON Structure**:
+3. **JSON Structure**:
    Ensure your final structure for each question looks like this:
    
    ```javascript
@@ -158,7 +158,7 @@ Your task is to convert formative questions into a MongoDB BSON format based on 
    }
    ```
 
-4. **Finishing the BSON Document**:
+4. **Finishing the JSON Document**:
    If there are multiple questions, remember to close the array after listing all questions. Your final structure for multiple questions should resemble:
    
    ```javascript
@@ -171,7 +171,7 @@ Your task is to convert formative questions into a MongoDB BSON format based on 
 
 5. **Additional Notes**:
    - Make sure to accurately transcribe the content. Avoid including any extraneous or redundant information.
-   - Maintain consistency in the BSON format for all questions to ensure they can be parsed and read uniformly.
+   - Maintain consistency in the JSON format for all questions to ensure they can be parsed and read uniformly.
 
 **Output Example**:
 
@@ -186,7 +186,7 @@ For a sample question like:
 Correct answer: e. Paris
 Explanation: Paris is the capital city of France.
 
-The converted BSON format should be:
+The converted JSON format should be:
 ```javascript
 {
    "questionText": "What is the capital of France?",

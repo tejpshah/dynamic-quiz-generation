@@ -1,15 +1,14 @@
+import re
+import os
+import datetime
+import argparse
 import openai 
 from promptTemplates import summarizerSystemPrompt, questionGeneratorSystemPrompt, questionCritiquerSystemPrompt, convertToMongoDBSystemPrompt
 from config import OPENAI_API_KEY
-import os
 from PyPDF2 import PdfReader
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
-import re
-import datetime
-import argparse
-
 
 # Set up configurations 
 openai.api_key= OPENAI_API_KEY
@@ -172,7 +171,7 @@ if __name__ == "__main__":
     outputFile.close()
 
     # Write the MongoDB of the file path to an output file BSON
-    outputFile = open(f"{new_folder_path}/mongoDB_{mm_day}.bson", "w")
+    outputFile = open(f"{new_folder_path}/mongoDB_{mm_day}.json", "w")
     outputFile.write(mongoDB)
     outputFile.close()
 
