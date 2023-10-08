@@ -7,7 +7,6 @@ from PyPDF2 import PdfReader
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
-
 from config import OPENAI_API_KEY
 from promptTemplates import (summarizerSystemPrompt, questionGeneratorSystemPrompt, 
                              questionCritiquerSystemPrompt, convertToMongoDBSystemPrompt)
@@ -162,14 +161,18 @@ if __name__ == "__main__":
 
     summary = generate_summary(input_text)
     print("The summary is completed.")
+
     questions = generate_questions(summary)
-    print("The questions are genreated.")
+    print("The questions are generated.")
+
     critiques = critique_questions(questions)
     print("The questions are critiqued.")
+
     finalized_questions = finalize_questions(summary, critiques)
     print("The questions are finalized.")
+
     mongoDB_format = convert_to_mongoDB(finalized_questions)
-    print("The questions are saved to JSON.")
+    print("The questions are converted to JSON.")
 
     output_path = create_new_folder()
     date_str = datetime.datetime.now().strftime("%m_%d")
@@ -177,4 +180,7 @@ if __name__ == "__main__":
     text_to_pdf(finalized_questions, os.path.join(output_path, f"questions_{date_str}.pdf"))
     study_guide_to_pdf(summary, os.path.join(output_path, f"study_guide_{date_str}.pdf"))
 
+    # Save the MongoDB file to a text file
+    with open(os.path.join(output_path, f"mongoDB_{date_str}.json"), 'w') as f:
+        f.write(mongoDB_format)
 

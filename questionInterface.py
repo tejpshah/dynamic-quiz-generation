@@ -82,5 +82,4 @@ def run_streamlit():
                 st.write(f"You got **{correct_count}/{len(questions)}** questions correct!")
 
 if __name__ == "__main__":
-
     run_streamlit()
