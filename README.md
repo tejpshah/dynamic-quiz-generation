@@ -1,5 +1,5 @@
 # Dynamic Quiz Generation System
-This project was created during HackRU Fall 2023.
+This project was created during HackRU Fall 2023 by Tej Shah. 
 
 ## Overview
 Dive deep into your course materials and unlock tailored quizzes designed just for you. Simply upload your PDF content and let the magic begin. Here's what you'll get:
@@ -39,7 +39,7 @@ Follow these step-by-step instructions to seamlessly generate quizzes from your 
     - Execute the following command to start generating quizzes:
 
     ```
-    python questionGenerator.py --data_directory data/your-project-name
+    python questionGenerator.py --data_directory data/your-project-name --v
     ```
 
 4. **Retrieve Generated Outputs**:
@@ -51,3 +51,5 @@ Follow these step-by-step instructions to seamlessly generate quizzes from your 
     ```
     streamlit run questionInterface.py
     ```
+    - In the streamlit, upload your MCQ formatted in JSON presented in output file
+    - Then take the quiz and see your score and correct answer explanations

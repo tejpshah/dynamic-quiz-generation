@@ -154,7 +154,7 @@ def create_new_folder():
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Process data directory to generate summary, questions, etc.")
-    parser.add_argument("--d", "--data_directory", help="path to data directory", default="data/")
+    parser.add_argument("-d", "--data_directory", help="path to data directory", default="data/")
     parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
     args = parser.parse_args()
 
