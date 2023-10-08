@@ -2,3 +2,4 @@ data/*
 output/*
 config.py
 __pycache__/
+devpost.md

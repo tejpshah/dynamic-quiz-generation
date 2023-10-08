@@ -154,33 +154,50 @@ def create_new_folder():
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Process data directory to generate summary, questions, etc.")
-    parser.add_argument("--data_directory", help="path to data directory", default="data/")
+    parser.add_argument("--d", "--data_directory", help="path to data directory", default="data/")
+    parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
     args = parser.parse_args()
 
     input_text = extract_all_text_in_data_directory(args.data_directory)
+    if args.verbose:
+        print("Extracted all text from the data directory.")
 
     summary = generate_summary(input_text)
     print("The summary is completed.")
+    if args.verbose:
+        print(summary)
 
     questions = generate_questions(summary)
     print("The questions are generated.")
+    if args.verbose:
+        print(questions)
 
     critiques = critique_questions(questions)
     print("The questions are critiqued.")
+    if args.verbose:
+        print(critiques)
 
     finalized_questions = finalize_questions(summary, critiques)
     print("The questions are finalized.")
+    if args.verbose:
+        print(finalized_questions)
 
     mongoDB_format = convert_to_mongoDB(finalized_questions)
     print("The questions are converted to JSON.")
+    if args.verbose:
+        print(mongoDB_format)
 
     output_path = create_new_folder()
     date_str = datetime.datetime.now().strftime("%m_%d")
-    
+
     text_to_pdf(finalized_questions, os.path.join(output_path, f"questions_{date_str}.pdf"))
     study_guide_to_pdf(summary, os.path.join(output_path, f"study_guide_{date_str}.pdf"))
+    if args.verbose:
+        print(f"Saved PDFs to {output_path}")
 
     # Save the MongoDB file to a text file
     with open(os.path.join(output_path, f"mongoDB_{date_str}.json"), 'w') as f:
         f.write(mongoDB_format)
+    if args.verbose:
+        print(f"Saved MongoDB format to {output_path}/mongoDB_{date_str}.json")
 
