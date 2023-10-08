@@ -8,6 +8,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
 import re
 import datetime
+import argparse
 
 
 # Set up configurations 
@@ -130,8 +131,12 @@ def create_new_folder():
 
 if __name__ == "__main__":
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data_directory", help="path to data directory")
+    args = parser.parse_args()
+
     # Read and store the text from the input file
-    inputText = extract_all_text_in_data_directory()
+    inputText = extract_all_text_in_data_directory(args.data_directory if args.data_directory else "data/")
 
     # Generate the summary and questions
     summary = generateSummary(summarizerSystemPrompt, inputText)
