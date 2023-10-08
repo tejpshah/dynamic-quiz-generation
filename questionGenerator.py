@@ -71,12 +71,29 @@ def convert_to_mongoDB(text):
     prompt = f"Convert the questions to MongoDB format:\n{text}"
     return openai_request(convertToMongoDBSystemPrompt, prompt)
 
-def text_to_pdf(text, filename="questions.pdf"):
+def text_to_pdf(text, pdf_filename="questions.pdf"):
     """Converts a text to a PDF."""
-    questions = re.split(r'\d+\.', text)[1:]
-    doc = SimpleDocTemplate(filename, pagesize=letter)
+
+    # Split the text into individual questions
+    questions = re.split(r'\d+\.', text)[1:]  # Split by numbers followed by a dot
+    
+    # Create a new PDF document
+    doc = SimpleDocTemplate(pdf_filename, pagesize=letter)
+    
+    # Define styles for the PDF
     styles = getSampleStyleSheet()
-    content = [Paragraph(question.strip(), styles['Normal']) for question in questions]
+    
+    # Create an empty list to hold the PDF content
+    content = []
+    
+    for question in questions:
+        lines = question.strip().split('\n')
+        for line in lines:
+            content.append(Paragraph(line.strip(), styles['Normal']))
+            content.append(Spacer(1, 12))  # Add a space after each line for clarity
+        content.append(PageBreak())
+    
+    # Build the PDF document with the content
     doc.build(content)
 
 def study_guide_to_pdf(text, pdf_filename="study_guide.pdf"):
