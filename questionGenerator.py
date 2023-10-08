@@ -37,7 +37,7 @@ def extract_all_text_in_data_directory(directory="data/"):
 def openai_request(system_prompt, context):
     """Helper function to handle OpenAI API calls."""
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",
+        model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": context},
@@ -48,7 +48,14 @@ def openai_request(system_prompt, context):
 def generate_summary(text):
     """Generates a summary for the given text."""
     prompt = f"This is the input below:\n{text}"
-    return openai_request(summarizerSystemPrompt, prompt)
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-16k",
+        messages=[
+            {"role": "system", "content": summarizerSystemPrompt},
+            {"role": "user", "content": prompt},
+        ]
+    )
+    return response['choices'][0]['message']['content']
 
 def generate_questions(text):
     """Generates questions for the given text."""
