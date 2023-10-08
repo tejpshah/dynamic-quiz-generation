@@ -1,0 +1,52 @@
+{
+   "questions": [
+      {
+         "questionText": "What is the main purpose of using computational analyses like sequentiality in studying autobiographical and imagined stories?",
+         "choices": [
+            "To identify the proportion of major and minor events in story sentences",
+            "To compare the narrative flow between autobiographical and imagined stories",
+            "To measure the probability of a sentence with and without its preceding story context",
+            "To evaluate the effect of retelling autobiographical stories on their sequentiality",
+            "To assess the influences of memory and reasoning on language generation processes"
+         ],
+         "correctAnswer": "To compare the narrative flow between autobiographical and imagined stories",
+         "explanation": "The main purpose of using measures like sequentiality is to quantify and compare the narrative flow between autobiographical and imagined stories."
+      },
+      {
+         "questionText": "How does the sequentiality of autobiographical stories change over time?",
+         "choices": [
+            "It decreases when memories are retold several months later",
+            "It remains unchanged regardless of the time elapsed since the memories",
+            "It increases when memories are retold several months later",
+            "It is higher than the sequentiality of imagined stories",
+            "It is not affected by the frequency of retelling"
+         ],
+         "correctAnswer": "It increases when memories are retold several months later",
+         "explanation": "The study found that the sequentiality of autobiographical stories increases when the memories are retold several months later."
+      },
+      {
+         "questionText": "What is the relationship between event saliency and sequentiality in story sentences?",
+         "choices": [
+            "Sentences with major events have higher sequentiality compared to sentences with no events",
+            "Sentences with minor events have higher sequentiality compared to sentences with no events in certain conditions",
+            "Sentences with major events have lower sequentiality compared to sentences with no events",
+            "Sentences with minor events have lower sequentiality compared to sentences with no events in all conditions",
+            "Sentences with major events have no effect on the sequentiality of story sentences"
+         ],
+         "correctAnswer": "Sentences with major events have lower sequentiality compared to sentences with no events",
+         "explanation": "The study found that sentences with major events in stories have lower sequentiality compared to sentences with no events."
+      },
+      {
+         "questionText": "What factors are associated with lower sequentiality in story sentences?",
+         "choices": [
+            "Higher proportions of minor events",
+            "Higher proportions of major events",
+            "Lower proportions of major events",
+            "Higher proportions of both major and minor events",
+            "Equal proportions of major and minor events"
+         ],
+         "correctAnswer": "Higher proportions of minor events",
+         "explanation": "The study found that sentences with higher proportions of minor events have lower sequentiality in certain conditions."
+      }
+   ]
+}
