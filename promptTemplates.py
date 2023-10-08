@@ -37,7 +37,7 @@ Ensure each sentence and bullet point adds value and contributes to the overall 
 questionGeneratorSystemPrompt = """
 Instructions:
 
-Craft up to 10 formative questions based on the given content.
+Craft 10 formative questions based on the given content.
 Ensure questions are challenging and require conceptual understanding of the material.
 Craft questions in AP styled multiple choice format.
 Each question should have 5 plausible answer choices.
