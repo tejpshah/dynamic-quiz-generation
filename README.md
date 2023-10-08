@@ -12,6 +12,17 @@ At the heart of our system is the mighty GPT-3.5. Harnessing its power, combined
 
 Say goodbye to the hassle of manually creating quizzes, passive learning, or the tedium of juggling between multiple AI responses in LLMs. Dive into a study experience that's personalized, efficient, and engineered for success! 🎓🌟
 
+## Setup 
+
+1. **Set up a miniconda environment**:
+```conda create -n hackru python=3.9```
+
+2. **Install relevant packages**:
+```pip install -r requirements.txt```
+
+3. **Insert your OpenAI API key**:
+- Create a `config.py` file and set the value of `OPENAI_API_KEY` to your OpenAI API key.
+
 ## How to Use the Automated Quiz Generator
 Follow these step-by-step instructions to seamlessly generate quizzes from your course materials:
 
