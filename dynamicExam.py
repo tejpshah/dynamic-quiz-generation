@@ -1,12 +1,14 @@
 import json 
 import datetime as dt
 
+# This function loads the generated question
 def load_questions(project_id, time_id):
     path = f"output/{project_id}/mongoDB_{time_id}.json"
     with open(path, 'r') as f:
         data = json.load(f)
     return data['questions']
 
+# This function displays the questions to the user 
 def display_questions(questions):
     user_answers = []
     for idx, q in enumerate(questions):
@@ -17,6 +19,7 @@ def display_questions(questions):
         user_answers.append(int(answer))
     return user_answers
 
+# This function checks the answers and returns the number of correct answers
 def check_answers(questions, user_answers):
     correct_count = 0
     for idx, q in enumerate(questions):
@@ -29,6 +32,7 @@ def check_answers(questions, user_answers):
             print(f"Question {idx + 1}: Incorrect. Correct answer: {q['correctAnswer']}")
     return correct_count
 
+# This function stores the performance of the user
 def store_performance(project_id, correct_count, total_questions):
     now = dt.datetime.now()
     current_time = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -43,6 +47,11 @@ def store_performance(project_id, correct_count, total_questions):
         json.dump(performance, f)
 
 if __name__ == "__main__":
+    
+    # This code prompts the user to enter their project ID, loads the questions
+    # for the project, displays them to the user, and then checks the user's
+    # answers and prints the number of correct answers.
+
     project_id = input("Enter project ID: ")
     questions = load_questions(project_id, "10_07")
     user_answers = display_questions(questions)

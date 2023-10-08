@@ -120,6 +120,7 @@ def text_to_pdf(text, pdf_filename="questions.pdf"):
     # Build the PDF document with the content
     doc.build(content)
 
+# This function creates a new folder in the output directory
 def create_new_folder():
     output_dir = "output"
     num_folders = len(os.listdir(output_dir))
@@ -170,7 +171,7 @@ if __name__ == "__main__":
     outputFile.write(finalized)
     outputFile.close()
 
-    # Write the MongoDB of the file path to an output file BSON
+    # Write the MongoDB of the file path to an output file JSON
     outputFile = open(f"{new_folder_path}/mongoDB_{mm_day}.json", "w")
     outputFile.write(mongoDB)
     outputFile.close()
