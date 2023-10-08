@@ -1,179 +1,163 @@
-import re
 import os
+import re
 import datetime
 import argparse
 import openai 
-from promptTemplates import summarizerSystemPrompt, questionGeneratorSystemPrompt, questionCritiquerSystemPrompt, convertToMongoDBSystemPrompt
-from config import OPENAI_API_KEY
 from PyPDF2 import PdfReader
 from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
 
-# Set up configurations 
-openai.api_key= OPENAI_API_KEY
+from config import OPENAI_API_KEY
+from promptTemplates import (summarizerSystemPrompt, questionGeneratorSystemPrompt, 
+                             questionCritiquerSystemPrompt, convertToMongoDBSystemPrompt)
 
-# This function extracts all the text from the files in the data directory
+# Configuration setup
+openai.api_key = OPENAI_API_KEY
+
 def extract_all_text_in_data_directory(directory="data/"):
+    """Extracts all text from PDF and TXT files in the specified directory."""
     all_text = []
-
-    # List all the files in the directory
     for file_name in os.listdir(directory):
         file_path = os.path.join(directory, file_name)
-
-        # Check if the file is a PDF
+        
+        # Extract text from PDFs
         if file_name.endswith('.pdf'):
-            try:
-                with open(file_path, 'rb') as pdf_file:
-                    pdf_reader = PdfReader(pdf_file)
-                    for page in pdf_reader.pages:
-                        all_text.append(page.extract_text())
-                    print(f"Successfully processed {file_name}")
-            except Exception as e:
-                print(f"Error processing {file_name}: {e}")
-
-        # Check if the file is a text file
+            with open(file_path, 'rb') as pdf_file:
+                pdf_reader = PdfReader(pdf_file)
+                for page in pdf_reader.pages:
+                    all_text.append(page.extract_text())
+            print(f"Successfully processed {file_name}")
+        
+        # Extract text from text files
         elif file_name.endswith('.txt'):
-            try:
-                with open(file_path, 'r', encoding='utf-8') as text_file:
-                    all_text.append(text_file.read())
-            except Exception as e:
-                print(f"Error processing {file_name}: {e}")
-
+            with open(file_path, 'r', encoding='utf-8') as text_file:
+                all_text.append(text_file.read())
     return ''.join(all_text)
 
-# This function generates a summary from a given text
-def generateSummary(system_prompt, context):
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"This is the input below:\n{context}"},
-        ]
-    )
-    return response['choices'][0]['message']['content']
-
-# This function generates questions from a given text
-def generateQuestions(system_prompt, context):
+def openai_request(system_prompt, context):
+    """Helper function to handle OpenAI API calls."""
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Make questions on the following content:\n{context}"},
+            {"role": "user", "content": context},
         ]
     )
     return response['choices'][0]['message']['content']
 
-# This function critiques questions from a given text
-def critiqueQuestions(system_prompt, context):
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Critique the set of questions generated:\n{context}"},
-        ]
-    )
-    return response['choices'][0]['message']['content']
+def generate_summary(text):
+    """Generates a summary for the given text."""
+    prompt = f"This is the input below:\n{text}"
+    return openai_request(summarizerSystemPrompt, prompt)
 
-# This function finalizes questions from a given text
-def finalizedQuestions(system_prompt, context, critiques):
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"This is the content you're making questions on: \n{context}\n These are the critiques you've recieved: \n{critiques}. Your revised questions are:"},
-        ]
-    )
-    return response['choices'][0]['message']['content']
+def generate_questions(text):
+    """Generates questions for the given text."""
+    prompt = f"Make questions on the following content:\n{text}"
+    return openai_request(questionGeneratorSystemPrompt, prompt)
 
-# This function converts questions to MongoDB format
-def convertToMongoDB(system_prompt, context):
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Convert the questions to MongoDB format:\n{context}"},
-        ]
-    )
-    return response['choices'][0]['message']['content']
+def critique_questions(text):
+    """Generates critiques for the given set of questions."""
+    prompt = f"Critique the set of questions generated:\n{text}"
+    return openai_request(questionCritiquerSystemPrompt, prompt)
 
-def text_to_pdf(text, pdf_filename="questions.pdf"):
-    # Split the text into individual questions
-    questions = re.split(r'\d+\.', text)[1:]  # Split by numbers followed by a dot
-    
-    # Create a new PDF document
-    doc = SimpleDocTemplate(pdf_filename, pagesize=letter)
-    
-    # Define styles for the PDF
+def finalize_questions(text, critiques):
+    """Revises the questions based on provided critiques."""
+    prompt = f"This is the content you're making questions on: \n{text}\nThese are the critiques you've received: \n{critiques}. Your revised questions are:"
+    return openai_request(questionGeneratorSystemPrompt, prompt)
+
+def convert_to_mongoDB(text):
+    """Converts the questions to a MongoDB format."""
+    prompt = f"Convert the questions to MongoDB format:\n{text}"
+    return openai_request(convertToMongoDBSystemPrompt, prompt)
+
+def text_to_pdf(text, filename="questions.pdf"):
+    """Converts a text to a PDF."""
+    questions = re.split(r'\d+\.', text)[1:]
+    doc = SimpleDocTemplate(filename, pagesize=letter)
     styles = getSampleStyleSheet()
-    
-    # Create an empty list to hold the PDF content
-    content = []
-    
-    for question in questions:
-        lines = question.strip().split('\n')
-        for line in lines:
-            content.append(Paragraph(line.strip(), styles['Normal']))
-            content.append(Spacer(1, 12))  # Add a space after each line for clarity
-        content.append(PageBreak())
-    
-    # Build the PDF document with the content
+    content = [Paragraph(question.strip(), styles['Normal']) for question in questions]
     doc.build(content)
 
-# This function creates a new folder in the output directory
+def study_guide_to_pdf(text, pdf_filename="study_guide.pdf"):
+    """Converts a study guide to a PDF."""
+
+    styles = getSampleStyleSheet()
+
+    # Custom styles for different parts of the document
+    title_style = styles["Heading1"]
+    subtitle_style = styles["Heading2"]
+    normal_style = styles["Normal"]
+    bullet_style = ParagraphStyle(
+        "bullet",
+        parent=styles["BodyText"],
+        spaceBefore=0,
+        leftIndent=20,
+        spaceAfter=0,
+    )
+
+    content = []
+    
+    # Split sections by blank lines
+    sections = re.split(r'\n\n', text)
+    
+    for section in sections:
+        # If it's a structured outline or bullet point details
+        if re.match(r'[IVX]+\.', section) or "- " in section:
+            items = section.split('\n')
+            for item in items:
+                # Check if it's a main point (e.g., I., II., etc.)
+                if re.match(r'[IVX]+\.', item):
+                    content.append(Paragraph(item, subtitle_style))
+                else:
+                    # It's a subpoint or bullet point
+                    content.append(Paragraph(item, bullet_style))
+            content.append(Spacer(1, 12))
+        else:
+            # General paragraphs or titles
+            lines = section.strip().split('\n')
+            for line in lines:
+                # If it's a title (like "Executive Summary:" or "Key Insights Extraction:")
+                if line.endswith(":"):
+                    content.append(Paragraph(line, title_style))
+                else:
+                    content.append(Paragraph(line, normal_style))
+                content.append(Spacer(1, 12))
+
+    doc = SimpleDocTemplate(pdf_filename, pagesize=letter)
+    doc.build(content)
+
 def create_new_folder():
+    """Creates a new folder in the 'output' directory and returns its path."""
     output_dir = "output"
-    num_folders = len(os.listdir(output_dir))
-    new_folder_name = str(num_folders)
+    new_folder_name = str(len(os.listdir(output_dir)))
     new_folder_path = os.path.join(output_dir, new_folder_name)
     os.mkdir(new_folder_path)
     return new_folder_path
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--data_directory", help="path to data directory")
+    parser = argparse.ArgumentParser(description="Process data directory to generate summary, questions, etc.")
+    parser.add_argument("--data_directory", help="path to data directory", default="data/")
     args = parser.parse_args()
 
-    # Read and store the text from the input file
-    inputText = extract_all_text_in_data_directory(args.data_directory if args.data_directory else "data/")
+    input_text = extract_all_text_in_data_directory(args.data_directory)
 
-    # Generate the summary and questions
-    summary = generateSummary(summarizerSystemPrompt, inputText)
-    print("SUMMARY\n" + summary + "\n")
+    summary = generate_summary(input_text)
+    print("The summary is completed.")
+    questions = generate_questions(summary)
+    print("The questions are genreated.")
+    critiques = critique_questions(questions)
+    print("The questions are critiqued.")
+    finalized_questions = finalize_questions(summary, critiques)
+    print("The questions are finalized.")
+    mongoDB_format = convert_to_mongoDB(finalized_questions)
+    print("The questions are saved to JSON.")
 
-    questions = generateQuestions(questionGeneratorSystemPrompt, summary)
-    print("QUESTIONS\n" + questions + "\n")
-
-    critiques = critiqueQuestions(questionCritiquerSystemPrompt, questions)
-    print("CRITIQUES\n" + critiques + "\n")
-
-    finalized = finalizedQuestions(questionGeneratorSystemPrompt, summary, critiques)
-    print("FINALIZED\n" + finalized + "\n")
-
-    mongoDB = convertToMongoDB(convertToMongoDBSystemPrompt, finalized)
-    print("MONGODB\n" + mongoDB + "\n")
-
-    # Automatically create a new folder in "output" based on number
-    new_folder_path = create_new_folder()
-    mm_day = datetime.datetime.now().strftime("%m_%d")
-
-    # Save the questions to a PDF file
-    text_to_pdf(finalized, f"{new_folder_path}/questions_{mm_day}.pdf")
-
-    # Write the summary of the file path to an output file
-    outputFile = open(f"{new_folder_path}/summary_{mm_day}.txt", "w")
-    outputFile.write(summary)
-    outputFile.close()
-
-    # Write the questions of the file path to an output file
-    outputFile = open(f"{new_folder_path}/questions_{mm_day}.txt", "w")
-    outputFile.write(finalized)
-    outputFile.close()
-
-    # Write the MongoDB of the file path to an output file JSON
-    outputFile = open(f"{new_folder_path}/mongoDB_{mm_day}.json", "w")
-    outputFile.write(mongoDB)
-    outputFile.close()
+    output_path = create_new_folder()
+    date_str = datetime.datetime.now().strftime("%m_%d")
+    
+    text_to_pdf(finalized_questions, os.path.join(output_path, f"questions_{date_str}.pdf"))
+    study_guide_to_pdf(summary, os.path.join(output_path, f"study_guide_{date_str}.pdf"))
 
 

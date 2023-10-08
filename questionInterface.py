@@ -50,14 +50,14 @@ def store_performance(project_id, correct_count, total_questions):
 def run_streamlit():
     st.title("Exam Questions")
     
-    # Select a project ID
-    project_id = st.text_input("Enter project ID:", "")
+    uploaded_file = st.file_uploader("Choose a JSON file", type="json")
     
-    # Load questions if a project ID is entered
-    if project_id:
-        questions = load_questions(project_id, "10_07")
+    if uploaded_file:
+        data = json.load(uploaded_file)
+        questions = data['questions']
         
-        # Display questions using Streamlit widgets
+        # Rest of the existing logic can follow...
+        
         user_answers = [None] * len(questions)  # Initialize with None
 
         for idx, q in enumerate(questions):
@@ -80,22 +80,7 @@ def run_streamlit():
                     st.write(f"**Explanation:** {explanation}\n\n---")  # The '---' will create a horizontal line in Streamlit for separation
                 
                 st.write(f"You got **{correct_count}/{len(questions)}** questions correct!")
-                store_performance(project_id, correct_count, len(questions))
-
-
-
 
 if __name__ == "__main__":
 
     run_streamlit()
-    
-    # This code prompts the user to enter their project ID, loads the questions
-    # for the project, displays them to the user, and then checks the user's
-    # answers and prints the number of correct answers.
-
-    # project_id = input("Enter project ID: ")
-    # questions = load_questions(project_id, "10_07")
-    # user_answers = display_questions(questions)
-    # correct_count = check_answers(questions, user_answers)
-    # store_performance(project_id, correct_count, len(questions))
-    # print(f"You got {correct_count}/{len(questions)} questions correct!")
