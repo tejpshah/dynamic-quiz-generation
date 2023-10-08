@@ -1,3 +1,4 @@
 data/* 
 output/*
 config.py
+__pycache__/
