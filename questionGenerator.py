@@ -18,6 +18,7 @@ def extract_all_text_in_data_directory(directory="data/"):
     """Extracts all text from PDF and TXT files in the specified directory."""
     all_text = []
     for file_name in os.listdir(directory):
+        print(file_name)
         file_path = os.path.join(directory, file_name)
         
         # Extract text from PDFs
@@ -48,13 +49,25 @@ def openai_request(system_prompt, context):
 def generate_summary(text):
     """Generates a summary for the given text."""
     prompt = f"This is the input below:\n{text}"
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",
-        messages=[
-            {"role": "system", "content": summarizerSystemPrompt},
-            {"role": "user", "content": prompt},
-        ]
-    )
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo-16k",
+            messages=[
+                {"role": "system", "content": summarizerSystemPrompt},
+                {"role": "user", "content": prompt},
+            ]
+        )
+    except Exception as e:
+        # Handle the exception here
+        print(f"An error occurred: {str(e)}. Trying GPT-4...")
+        # Try an alternative model
+        response = openai.ChatCompletion.create(
+            model="gpt-4-0125-preview",
+            messages=[
+                {"role": "system", "content": summarizerSystemPrompt},
+                {"role": "user", "content": prompt},
+            ]
+        )
     return response['choices'][0]['message']['content']
 
 def generate_questions(text):
